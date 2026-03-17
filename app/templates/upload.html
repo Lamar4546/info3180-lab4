@@ -9,7 +9,14 @@
 <form action="{{ url_for('upload') }}">
 
   {# Add the file upload field as you learnt for Flask-WTF #}
-
+  <form method="POST" enctype="multipart/form-data">
+    {{ form.csrf_token }}
+    <div>
+        {{ form.file.label }}
+        {{ form.file() }}
+    </div>
+    <button type="submit">Upload</button>
+</form>
   <button type="submit" name="submit" class="btn btn-primary">Upload file</button>
 </form>
 {% endblock %}
