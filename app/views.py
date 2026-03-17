@@ -69,6 +69,28 @@ def login():
 def load_user(id):
     return db.session.execute(db.select(UserProfile).filter_by(id=id)).scalar()
 
+
+def get_uploaded_images():
+    images = []
+    upload_folder = os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER'])
+    for subdir, dirs, files in os.walk(upload_folder):
+        for file in files:
+            if file.lower().endswith(('.jpg', '.jpeg', '.png')):
+                images.append(file)
+    return images
+
+@app.route('/uploads/<filename>')
+def get_image(filename):
+    return send_from_directory(
+        os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']),
+        filename
+    )
+
+@app.route('/files')
+@login_required
+def files():
+    images = get_uploaded_images()
+    return render_template('files.html', images=images)
 ###
 # The functions below should be applicable to all Flask apps.
 ###
@@ -87,6 +109,13 @@ def send_text_file(file_name):
     """Send your static text file."""
     file_dot_text = file_name + '.txt'
     return app.send_static_file(file_dot_text)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.', 'success')
+    return redirect(url_for('home'))
 
 
 @app.after_request
